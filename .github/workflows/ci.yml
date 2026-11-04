@@ -1,0 +1,22 @@
+name: CI
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+  push:
+    branches: [main]
+jobs:
+  gate:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          STACK: ${{ toJSON(github.event.pull_request.stack) }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+          ACTION: ${{ github.event.action }}
+          BEFORE: ${{ github.event.before }}
+          COMMITS: ${{ toJSON(github.event.commits) }}
+        run: |
+          echo "event=$GITHUB_EVENT_NAME action=$ACTION base=$BASE sha=$GITHUB_SHA before=$BEFORE"
+          echo "stack=$STACK"
+          echo "commits=$COMMITS" | head -c 3000
